@@ -31,6 +31,9 @@ class GoogleDriveHandlerExampleApp extends StatelessWidget {
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
   final String myApiKey = "YOUR_API_KEY";
+  final   Color backgroundColor,
+    final Color textColor,
+    final Color tileColor,
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +55,7 @@ class MainScreen extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () async {
-                File? myFile = await GoogleDriveHandler().getFileFromGoogleDrive(context: context);
+                File? myFile = await GoogleDriveHandler().getFileFromGoogleDrive(context: context, backgroundColor: null, textColor: null, tileColor: null);
                 if (myFile != null) {
                   /// Do something with the file
                   /// for instance open the file

@@ -21,11 +21,16 @@ class GoogleDriveHandler {
     _googlDriveApiKey = apiKey;
   }
 
-  Future getFileFromGoogleDrive({required BuildContext context}) async {
+  Future getFileFromGoogleDrive({required BuildContext context,
+  required  Color backgroundColor,
+    required Color textColor,
+    required Color tileColor,}) async {
     if (_googlDriveApiKey != null) {
       await _signinUser();
       if (account != null) {
-        return await _openGoogleDriveScreen(context);
+        return await _openGoogleDriveScreen(context ,backgroundColor:backgroundColor,
+     textColor:textColor,
+      tileColor: tileColor);
       } else {
         log("Google Signin was declined by the user!");
       }
@@ -34,7 +39,9 @@ class GoogleDriveHandler {
     }
   }
 
-  _openGoogleDriveScreen(BuildContext context) async {
+  _openGoogleDriveScreen(BuildContext context,{required Color backgroundColor,
+    required Color textColor,
+    required tileColor,}) async {
     final authHeaders = await account!.authHeaders;
     log(account!.displayName.toString());
     final authenticateClient = _GoogleAuthClient(authHeaders);
@@ -49,7 +56,7 @@ class GoogleDriveHandler {
           userName: account!.displayName!.substring(
             0,
             account!.displayName!.indexOf(" "),
-          ),
+          ),backgroundColor:backgroundColor ,textColor:textColor ,tileColor:tileColor ,
         ),
       ),
     );

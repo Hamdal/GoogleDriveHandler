@@ -13,6 +13,9 @@ class GoogleDriveScreen extends StatefulWidget {
     required this.googleDriveApiKey,
     required this.authenticateClient,
     required this.userName,
+    required this.backgroundColor,
+    required this.textColor,
+    required this.tileColor,
   });
 
   // This is the file list received from the users google drive, folders are automatically and the contents are extracted and added onto this list!
@@ -26,6 +29,13 @@ class GoogleDriveScreen extends StatefulWidget {
 
   // This is the authenticaedClient, generated after the signing in process.
   final authenticateClient;
+
+//  Set folor for text on the selection page
+  final Color textColor;
+//  set background color for selection page
+  final  Color backgroundColor;
+// set tile color for selection page
+  final Color tileColor;
 
   @override
   State<GoogleDriveScreen> createState() => _GoogleDriveScreenState();
@@ -61,19 +71,25 @@ class _GoogleDriveScreenState extends State<GoogleDriveScreen> {
 
   @override
   Widget build(BuildContext context) {
+   for (var gfile in widget.fileList.files!.toList()){
+
+               
+      
+                 print("from drive package :: 6 ${gfile?.name! ?? 'file name'}   ${gfile?.mimeType ?? 'null'}");
+                    }
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: widget.backgroundColor,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: widget.backgroundColor,
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: const Icon(
+          icon:  Icon(
             Icons.arrow_back_ios,
             size: 18,
-            color: Colors.black,
+            color: widget.textColor,
           ),
         ),
 
@@ -91,7 +107,7 @@ class _GoogleDriveScreenState extends State<GoogleDriveScreen> {
                 style: TextStyle(
                   fontFamily: 'FuturaBk',
                   fontWeight: FontWeight.w400,
-                  color: Colors.grey[700],
+                  color:  widget.textColor,
                 ),
                 cursorColor: Colors.black,
                 decoration: const InputDecoration(
@@ -107,8 +123,8 @@ class _GoogleDriveScreenState extends State<GoogleDriveScreen> {
             //Default title widget
             Text(
                 "${widget.userName}'s Drive",
-                style: const TextStyle(
-                  color: Colors.black,
+                style:  TextStyle(
+                  color: widget.textColor,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'FuturaBk',
                   fontSize: 15,
@@ -126,7 +142,7 @@ class _GoogleDriveScreenState extends State<GoogleDriveScreen> {
             icon: Icon(
               showSearchTextForm ? Icons.close : Icons.search,
               size: 18,
-              color: Colors.black,
+              color: widget.textColor,
             ),
           )
         ],
@@ -134,6 +150,7 @@ class _GoogleDriveScreenState extends State<GoogleDriveScreen> {
       body: Stack(
         children: [
           Container(
+            color: widget.backgroundColor,
             padding: const EdgeInsets.symmetric(
               horizontal: 10,
             ),
@@ -182,6 +199,8 @@ class _GoogleDriveScreenState extends State<GoogleDriveScreen> {
                                     file: file,
                                     fileList: widget.fileList,
                                     index: index,
+                                     tileColor: widget.tileColor,
+                                      textColor: widget.textColor,
                                   ),
                                 ),
                               ));
@@ -202,6 +221,8 @@ class _GoogleDriveScreenState extends State<GoogleDriveScreen> {
                                       file: file,
                                       fileList: widget.fileList,
                                       index: index,
+                                      tileColor: widget.tileColor,
+                                      textColor: widget.textColor,
                                     ),
                                   ),
                                 );
@@ -266,6 +287,19 @@ class _GoogleDriveScreenState extends State<GoogleDriveScreen> {
       final dir = await getApplicationDocumentsDirectory();
       // Create custom path, where the downloaded file will be saved. TEMPORARILY
       String path = "${dir.path}/${file.name}";
+      if(fileMimeType.contains("spreadsheet") || fileMimeType.contains("application/vnd.google-apps.spreadsheet")){
+        path = "$path.xlsx";
+      }else if (fileMimeType.contains("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")){
+ path = "$path.xlsx";
+      }
+      if(fileMimeType.contains("application/vnd.google-apps.document")){
+        path = "$path.docx";
+      }
+      if(fileMimeType.contains("application/vnd.openxmlformats-officedocument.presentationml.presentation") || fileMimeType.contains("application/vnd.google-apps.presentation")){
+        path = "$path.pptx";
+      }
+      
+
       // Save the file
       io.File myFile = await io.File(path).writeAsBytes(response.bodyBytes);
       // Returns the files
@@ -287,11 +321,15 @@ class _ItemCard extends StatelessWidget {
     required this.file,
     required this.fileList,
     required this.index,
+    required this.textColor,
+        required this.tileColor,
   }) : super(key: key);
 
   final int index;
   final File file;
   final FileList fileList;
+  final Color tileColor;
+  final Color textColor;
 
   // Add other mimeTypes here
   final List<String> videoFileExt = ["video/mp4", "audio/mp4"];
@@ -310,13 +348,14 @@ class _ItemCard extends StatelessWidget {
                 : picExt.contains(file.mimeType)
                     ? Icons.image
                     : Icons.description;
+                    
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 15,
         vertical: 10,
       ),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: tileColor,
         borderRadius: BorderRadius.circular(2),
       ),
       child: Row(
@@ -331,12 +370,13 @@ class _ItemCard extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              fileList.files!.toList()[index].name!,
+              fileList.files!.toList()[index].name! ,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontFamily: 'FuturaBk',
+                color: textColor
               ),
             ),
           )
@@ -364,7 +404,7 @@ class DownloadAlertDialog extends StatelessWidget {
   Widget _buildMaterialDialog(BuildContext context) {
     return AlertDialog(
       title: const Text(
-        'Download File',
+        'Upload File',
         style: TextStyle(
           fontFamily: 'FuturaBk',
           fontWeight: FontWeight.w700,
@@ -376,7 +416,7 @@ class DownloadAlertDialog extends StatelessWidget {
         children: [
           const SizedBox(height: 8),
           const Text(
-            'Do you want to download the file:',
+            'Do you want to Upload the file:',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
@@ -411,7 +451,7 @@ class DownloadAlertDialog extends StatelessWidget {
             callBackFunction();
           },
           child: Text(
-            'Download'.toUpperCase(),
+            'Upload'.toUpperCase(),
             style: const TextStyle(
               fontFamily: 'FuturaBk',
               fontWeight: FontWeight.w700,
@@ -429,7 +469,7 @@ class DownloadAlertDialog extends StatelessWidget {
   Widget _buildCupertinoDialog(BuildContext context) {
     return CupertinoAlertDialog(
       title: const Text(
-        'Download File',
+        'Upload File',
         style: TextStyle(
           fontFamily: 'FuturaBk',
           fontWeight: FontWeight.w700,
@@ -439,7 +479,7 @@ class DownloadAlertDialog extends StatelessWidget {
         children: [
           const SizedBox(height: 4),
           const Text(
-            'Do you want to download the file:',
+            'Do you want to upload the file:',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
@@ -474,7 +514,7 @@ class DownloadAlertDialog extends StatelessWidget {
           },
           isDefaultAction: true,
           child: const Text(
-            'Download',
+            'Upload',
             style: TextStyle(
               fontFamily: 'FuturaBk',
             ),
